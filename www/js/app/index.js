@@ -12,8 +12,8 @@ requirejs.config({
 });
 
 // Start the main app logic.
-requirejs(['vue'],
-    function(Vue) {
+requirejs(['vue','Tone'],
+    function(Vue, Tone) {
 
         Vue.component('link-item', {
             props: ['link'],
@@ -26,9 +26,30 @@ requirejs(['vue'],
             },
         });
 
+        var toneFinder = {};
+
         var app = new Vue({
-            el: '#newlyDiscovered',
-            data: newlyDiscovered,
+            el: '#toneFinder',
+            data: toneFinder,
         });
+
+
+        //create a synth and connect it to the master output (your speakers)
+        var synth = new Tone.Synth({
+            "oscillator" : {
+                "type" : "pwm",
+                "modulationFrequency" : 0.9
+            },
+            "envelope" : {
+                "attack" : 0.02,
+                "decay" : 0.1,
+                "sustain" : 1.2,
+                "release" : 0.9,
+            }
+        }).toMaster();
+
+        //play a middle 'C' for the duration of an 8th note
+        synth.triggerAttackRelease("C4", "16n", "1m");
+        synth.triggerAttackRelease("D4", "16n", "2m");
 
     });
