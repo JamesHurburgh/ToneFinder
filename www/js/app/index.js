@@ -55,6 +55,8 @@ requirejs(['vue', 'Tone'],
             "fatsawtooth",
         ];
 
+        var curveTypes = ["linear", "exponential", "sine", "cosine", "bounce", "ripple", "step"];
+
         createRandomSynth = function() {
             return new Tone.Synth({
                 "oscillator": {
@@ -62,10 +64,12 @@ requirejs(['vue', 'Tone'],
                     "phase": Math.random() * 360
                 },
                 "envelope": {
-                    "attack": Math.random(),
-                    "decay": Math.random(),
-                    "sustain": Math.random(),
-                    "release": Math.random(),
+                    "attack": Math.random() * 2,
+                    "attackCurve": getRandomFromList(curveTypes),
+                    "decay": Math.random() * 2,
+                    "sustain": Math.random() * 2,
+                    "release": Math.random() * 2,
+                    "releaseCurve": getRandomFromList(curveTypes),
                 }
             }).toMaster();
         };
@@ -74,7 +78,7 @@ requirejs(['vue', 'Tone'],
             var tone = {};
             tone.synth = createRandomSynth();
             tone.frequency = Math.random() * 500 + 100;
-            tone.duration = Math.random();
+            tone.duration = Math.random() * 5;
 
             return tone;
         };
