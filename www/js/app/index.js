@@ -12,7 +12,7 @@ requirejs.config({
 });
 
 // Start the main app logic.
-requirejs(['vue','Tone'],
+requirejs(['vue', 'Tone'],
     function(Vue, Tone) {
 
         Vue.component('link-item', {
@@ -26,30 +26,74 @@ requirejs(['vue','Tone'],
             },
         });
 
+        getRandomFromList = function(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        };
+
+        var oscialltorTypes = [
+            "pwm",
+            "pulse",
+
+            "sine",
+            "fmsine",
+            "amsine",
+            "fatsine",
+
+            "square",
+            "fmsquare",
+            "amsquare",
+            "fatsquare",
+
+            "triangle",
+            "fmtriangle",
+            "amtriangle",
+            "fattriangle",
+
+            "sawtooth",
+            "fmsawtooth",
+            "amsawtooth",
+            "fatsawtooth",
+        ];
+
+        createRandomSynth = function() {
+            return new Tone.Synth({
+                "oscillator": {
+                    "type": getRandomFromList(oscialltorTypes),
+                    "phase": Math.random() * 360
+                },
+                "envelope": {
+                    "attack": Math.random(),
+                    "decay": Math.random(),
+                    "sustain": Math.random(),
+                    "release": Math.random(),
+                }
+            }).toMaster();
+        };
+
+        createRandomTone = function() {
+            var tone = {};
+            tone.synth = createRandomSynth();
+            tone.frequency = Math.random() * 500 + 100;
+            tone.duration = Math.random();
+
+            return tone;
+        };
+
         var toneFinder = {};
+        toneFinder.tone = createRandomTone();
 
         var app = new Vue({
             el: '#toneFinder',
             data: toneFinder,
-        });
-
-
-        //create a synth and connect it to the master output (your speakers)
-        var synth = new Tone.Synth({
-            "oscillator" : {
-                "type" : "pwm",
-                "modulationFrequency" : 0.9
-            },
-            "envelope" : {
-                "attack" : 0.02,
-                "decay" : 0.1,
-                "sustain" : 1.2,
-                "release" : 0.9,
+            methods: {
+                play: function() {
+                    //play a middle 'C' for the duration of an 8th note
+                    toneFinder.tone.synth.triggerAttackRelease(toneFinder.tone.frequency, toneFinder.tone.duration);
+                },
+                randomise: function() {
+                    toneFinder.tone = createRandomTone();
+                }
             }
-        }).toMaster();
-
-        //play a middle 'C' for the duration of an 8th note
-        synth.triggerAttackRelease("C4", "16n", "1m");
-        synth.triggerAttackRelease("D4", "16n", "2m");
+        });
 
     });
