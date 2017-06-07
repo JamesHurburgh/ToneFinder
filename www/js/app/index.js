@@ -12,8 +12,8 @@ requirejs.config({
 });
 
 // Start the main app logic.
-requirejs(['vue', 'Tone'],
-    function(Vue, Tone) {
+requirejs(['vue', 'Tone', 'store'],
+    function(Vue, Tone, store) {
 
         Vue.component('link-item', {
             props: ['link'],
@@ -77,8 +77,9 @@ requirejs(['vue', 'Tone'],
         createRandomTone = function() {
             var tone = {};
             tone.synth = createRandomSynth();
-            tone.frequency = Math.random() * 500 + 100;
-            tone.duration = Math.random() * 5;
+            tone.frequency = Math.random() * 2000 + 10;
+            tone.duration = Math.random() * 1;
+            tone.name = Math.floor(Math.random() * Math.pow(10,6));
 
             return tone;
         };
@@ -86,16 +87,55 @@ requirejs(['vue', 'Tone'],
         var toneFinder = {};
         toneFinder.tone = createRandomTone();
 
+
+        Vue.component('saved-template', {
+            props: ['saved'],
+            template: '#saved-template',
+            computed: {},
+            methods: {
+                remove: function() {
+                    var tones = store.get("tones");
+                    tones.forEach(function(tone) {
+                        if(tone.name == this.saved.name){
+                            //tones.re
+                        }
+                    }, this);
+                    tones.push(toneFinder.tone);
+                    store.set("tones", tones);
+                },
+                load: function() {
+                    var tones = store.get("tones");
+                    tones.forEach(function(tone) {
+                        if(tone.name == this.saved.name){
+                            app.tone = tone;
+                        }
+                    }, this);
+                }
+            }
+        });
+
         var app = new Vue({
             el: '#toneFinder',
             data: toneFinder,
+            computed: {
+            },
             methods: {
                 play: function() {
-                    //play a middle 'C' for the duration of an 8th note
                     toneFinder.tone.synth.triggerAttackRelease(toneFinder.tone.frequency, toneFinder.tone.duration);
                 },
                 randomise: function() {
                     toneFinder.tone = createRandomTone();
+                },
+                save: function(){
+                    var tones = store.get("tones");
+                    if(tones === undefined){
+                        tones = [];
+                    }
+                    tones.push(toneFinder.tone);
+                    store.set("tones", tones);
+                },                
+                savedTones: function(){
+                    return store.get("tones");
                 }
             }
         });
