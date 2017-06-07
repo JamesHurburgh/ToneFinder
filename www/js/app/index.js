@@ -115,10 +115,6 @@ requirejs(['vue', 'Tone', 'store'],
             computed: {},
             methods: {
                 remove: function() {
-                    // var index = array.indexOf(this.saved);
-                    // if (index > -1) {
-                    //     tones.splice(index, 1);
-                    // }
                     for (var i = 0; i < savedTones.toneList.length; i++) {
                         if (savedTones.toneList[i].name == this.saved.name) {
                             savedTones.toneList.splice(i, 1);
@@ -129,7 +125,8 @@ requirejs(['vue', 'Tone', 'store'],
                 load: function() {
                     savedTones.toneList.forEach(function(soundDefinition) {
                         if (soundDefinition.name == this.saved.name) {
-                            toneFinderApp.soundDefinition = soundDefinition;
+                            // Use JSON to deep clone the object
+                            toneFinderApp.soundDefinition = JSON.parse(JSON.stringify(soundDefinition));
                         }
                     }, this);
                 }
@@ -153,7 +150,13 @@ requirejs(['vue', 'Tone', 'store'],
                     if (savedTones.toneList === undefined) {
                         savedTones.toneList = [];
                     }
-                    savedTones.toneList.push(toneFinder.soundDefinition);
+                    for (var i = 0; i < savedTones.toneList.length; i++) {
+                        if (savedTones.toneList[i].name == toneFinder.soundDefinition.name) {
+                            return;
+                        }
+                    }
+                    // Use JSON to deep clone the object
+                    savedTones.toneList.push(JSON.parse(JSON.stringify(toneFinder.soundDefinition)));
                     store.set("tones", savedTones.toneList);
                 }
             }
