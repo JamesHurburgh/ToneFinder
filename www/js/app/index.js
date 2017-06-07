@@ -57,35 +57,56 @@ requirejs(['vue', 'Tone', 'store'],
 
         var curveTypes = ["linear", "exponential", "sine", "cosine", "bounce", "ripple", "step"];
 
-        createRandomSynth = function() {
+        createSynth = function(soundDef) {
             return new Tone.Synth({
                 "oscillator": {
-                    "type": getRandomFromList(oscialltorTypes),
-                    "phase": Math.random() * 360
+                    "type": soundDef.oscillatorType,
+                    "phase": soundDef.oscillatorPhase
                 },
                 "envelope": {
-                    "attack": Math.random() * 2,
-                    "attackCurve": getRandomFromList(curveTypes),
-                    "decay": Math.random() * 2,
-                    "sustain": Math.random() * 2,
-                    "release": Math.random() * 2,
-                    "releaseCurve": getRandomFromList(curveTypes),
+                    "attack": soundDef.envelopeAttack,
+                    "attackCurve": soundDef.envelopeAttackCurve,
+                    "decay": soundDef.envelopeDecay,
+                    "sustain": soundDef.envelopeSustain,
+                    "release": soundDef.envelopeRelease,
+                    "releaseCurve": soundDef.envelopeReleaseCurve,
                 }
             }).toMaster();
         };
 
-        createRandomTone = function() {
+        createTone = function(soundDef) {
             var tone = {};
-            tone.synth = createRandomSynth();
-            tone.frequency = Math.random() * 2000 + 10;
-            tone.duration = Math.random() * 1;
-            tone.name = Math.floor(Math.random() * Math.pow(10,6));
+            tone.synth = createSynth(soundDef);
+            tone.frequency = soundDef.frequency;
+            tone.duration = soundDef.duration;
+            tone.name = soundDef.name;
 
             return tone;
         };
 
+        createRandomSoundDefinition = function() {
+            var sound = {};
+
+            sound.oscillatorType = getRandomFromList(oscialltorTypes);
+            sound.oscillatorPhase = Math.random() * 360;
+
+            sound.envelopeAttack = Math.random() * 2;
+            sound.envelopeAttackCurve = getRandomFromList(curveTypes);
+            sound.envelopeDecay = Math.random() * 2;
+            sound.envelopeSustain = Math.random() * 2;
+            sound.envelopeRelease = Math.random() * 2;
+            sound.envelopeReleaseCurve = getRandomFromList(curveTypes);
+
+            sound.frequency = Math.random() * 2000 + 10;
+            sound.duration = Math.random() * 1;
+            sound.name = Math.floor(Math.random() * Math.pow(10, 6));
+
+            return sound;
+        };
+
         var toneFinder = {};
-        toneFinder.tone = createRandomTone();
+
+        toneFinder.soundDefinition = createRandomSoundDefinition();
 
 
         Vue.component('saved-template', {
@@ -94,50 +115,57 @@ requirejs(['vue', 'Tone', 'store'],
             computed: {},
             methods: {
                 remove: function() {
-                    var tones = store.get("tones");
-                    tones.forEach(function(tone) {
-                        if(tone.name == this.saved.name){
-                            //tones.re
+                    // var index = array.indexOf(this.saved);
+                    // if (index > -1) {
+                    //     tones.splice(index, 1);
+                    // }
+                    for (var i = 0; i < savedTones.toneList.length; i++) {
+                        if (savedTones.toneList[i].name == this.saved.name) {
+                            savedTones.toneList.splice(i, 1);
                         }
-                    }, this);
-                    tones.push(toneFinder.tone);
-                    store.set("tones", tones);
+                    }
+                    store.set("tones", savedTones.toneList);
                 },
                 load: function() {
-                    var tones = store.get("tones");
-                    tones.forEach(function(tone) {
-                        if(tone.name == this.saved.name){
-                            app.tone = tone;
+                    savedTones.toneList.forEach(function(soundDefinition) {
+                        if (soundDefinition.name == this.saved.name) {
+                            toneFinderApp.soundDefinition = soundDefinition;
                         }
                     }, this);
                 }
             }
         });
 
-        var app = new Vue({
+        var toneFinderApp = new Vue({
             el: '#toneFinder',
             data: toneFinder,
-            computed: {
-            },
+            computed: {},
             methods: {
                 play: function() {
-                    toneFinder.tone.synth.triggerAttackRelease(toneFinder.tone.frequency, toneFinder.tone.duration);
+                    var tone = createTone(toneFinder.soundDefinition);
+
+                    tone.synth.triggerAttackRelease(tone.frequency, tone.duration);
                 },
                 randomise: function() {
-                    toneFinder.tone = createRandomTone();
+                    toneFinder.soundDefinition = createRandomSoundDefinition();
                 },
-                save: function(){
-                    var tones = store.get("tones");
-                    if(tones === undefined){
-                        tones = [];
+                save: function() {
+                    if (savedTones.toneList === undefined) {
+                        savedTones.toneList = [];
                     }
-                    tones.push(toneFinder.tone);
-                    store.set("tones", tones);
-                },                
-                savedTones: function(){
-                    return store.get("tones");
+                    savedTones.toneList.push(toneFinder.soundDefinition);
+                    store.set("tones", savedTones.toneList);
                 }
             }
         });
+
+        var savedTones = { "toneList": store.get("tones") };
+
+        var savedTonesApp = new Vue({
+            el: '#savedTones',
+            data: savedTones,
+            computed: {},
+        });
+
 
     });
