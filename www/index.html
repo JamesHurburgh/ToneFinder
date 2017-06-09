@@ -32,6 +32,12 @@
             </div>
         </div>
     </template>
+    <template id="variant-template">
+        <div class="well col-sm-2">{{variant.VariantDescription}}
+            <a class="btn btn-info btn-xs" v-on:click="load">Load</a>
+            <a class="btn btn-info btn-xs" v-on:mouseover="play">Play</a>
+        </div>
+    </template>
     <div class="container">
         <div class="row">
             <h1>Tone finder</h1>
@@ -133,6 +139,10 @@
                             </div>
                         </div>
                     </fieldset>
+                    <div id="variants" class="col-md-12">
+                        <h2>Variants</h2>
+                        <variant-template v-for="variant in variants" :key="variant.name" :variant="variant"></variant-template>
+                    </div>
                 </div>
                 <div id="savedTones" class="col-md-6">
                     <h2>Saved tones</h2>
