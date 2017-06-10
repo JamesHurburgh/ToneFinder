@@ -96,10 +96,9 @@ requirejs(['vue', 'Tone', 'store', 'recorder'],
             sound.envelopeRelease = Math.floor(Math.random() * 100) / 100;
             sound.envelopeReleaseCurve = getRandomFromList(curveTypes);
 
-            sound.frequency = Math.floor(Math.random() * 200000) / 100 + 10;
-            sound.startFrequency = Math.floor(Math.random() * 200000) / 100 + 10;
+            sound.startFrequency = Math.floor(Math.random() * 1000000) / 100 + 10;
             sound.portamento = Math.ceil(Math.random() * 100) / 100;
-            sound.endFrequency = Math.floor(Math.random() * 200000) / 100 + 10;
+            sound.endFrequency = Math.floor(Math.random() * 1000000) / 100 + 10;
             sound.duration = Math.ceil(Math.random() * 100) / 100;
             sound.name = Math.floor(Math.random() * Math.pow(10, 6));
 
